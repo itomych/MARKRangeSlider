@@ -17,6 +17,9 @@
 @property (nonatomic) BOOL pushable;
 @property (nonatomic) BOOL disableOverlapping;
 
+@property (nonatomic) CGFloat leftThumbScaleValue;  //default scale value 1
+@property (nonatomic) CGFloat rightThumbScaleValue;
+
 // Images
 @property (nonatomic) UIImage *trackImage;
 @property (nonatomic) UIImage *rangeImage;

@@ -64,6 +64,7 @@ static NSString * const kMARKRangeSliderTrackRangeImage = @"rangeSliderTrackRang
     self.leftValue = self.minimumDistance;
     self.rightValue = self.maximumValue;
     self.minimumDistance = 0.2f;
+    self.leftThumbScaleValue = self.rightThumbScaleValue = 1.0f;
 }
 
 - (void)setUpViewComponents
@@ -170,10 +171,25 @@ static NSString * const kMARKRangeSliderTrackRangeImage = @"rangeSliderTrackRang
     self.rightThumbImageView.center = CGPointMake(rightX, height / 2);
 }
 
+- (void)makeScaleForThumb:(UIImageView *)thumb withPan:(UIPanGestureRecognizer *)gesture andScaleValue:(CGFloat)scaleValue {
+    
+
+    if (gesture.state == UIGestureRecognizerStateBegan || gesture == nil) {
+        
+        thumb.transform = CGAffineTransformMakeScale(scaleValue, scaleValue);
+        
+        return;
+    }
+    else if (gesture.state == UIGestureRecognizerStateEnded) {
+        thumb.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
+    }
+}
+
 #pragma mark - Gesture recognition
 
 - (void)handleLeftPan:(UIPanGestureRecognizer *)gesture
 {
+    [self makeScaleForThumb:self.leftThumbView withPan:gesture andScaleValue:self.leftThumbScaleValue];
     if (gesture.state == UIGestureRecognizerStateBegan || gesture.state == UIGestureRecognizerStateChanged) {
         //Fix when minimumDistance = 0.0 and slider is move to 1.0-1.0
         [self bringSubviewToFront:self.leftThumbImageView];
@@ -193,6 +209,7 @@ static NSString * const kMARKRangeSliderTrackRangeImage = @"rangeSliderTrackRang
 
 - (void)handleRightPan:(UIPanGestureRecognizer *)gesture
 {
+    [self makeScaleForThumb:self.rightThumbImageView withPan:gesture andScaleValue:self.rightThumbScaleValue];
     if (gesture.state == UIGestureRecognizerStateBegan || gesture.state == UIGestureRecognizerStateChanged) {
         //Fix when minimumDistance = 0.0 and slider is move to 1.0-1.0
         [self bringSubviewToFront:self.rightThumbImageView];
@@ -208,6 +225,38 @@ static NSString * const kMARKRangeSliderTrackRangeImage = @"rangeSliderTrackRang
 
         [self sendActionsForControlEvents:UIControlEventValueChanged];
     }
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    
+    [touches enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+        UITouch *touch = obj;
+        CGPoint leftThumbTouchPoint = [touch locationInView:self.leftThumbImageView];
+        CGPoint rightThumbTouchPoint = [touch locationInView:self.rightThumbImageView];
+        
+        if ( [self.leftThumbImageView pointInside:leftThumbTouchPoint withEvent:nil]) {
+            [self makeScaleForThumb:self.leftThumbImageView withPan:nil andScaleValue:self.leftThumbScaleValue];
+        }
+        else if ([self.rightThumbImageView pointInside:rightThumbTouchPoint withEvent:nil]) {
+            [self makeScaleForThumb:self.rightThumbImageView withPan:nil andScaleValue:self.rightThumbScaleValue];
+        }
+    }];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    
+    [touches enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+        UITouch *touch = obj;
+        CGPoint leftThumbTouchPoint = [touch locationInView:self.leftThumbImageView];
+        CGPoint rightThumbTouchPoint = [touch locationInView:self.rightThumbImageView];
+        
+        if ( [self.leftThumbImageView pointInside:leftThumbTouchPoint withEvent:nil]) {
+            [self makeScaleForThumb:self.leftThumbImageView withPan:nil andScaleValue:1.0f];
+        }
+        else if ([self.rightThumbImageView pointInside:rightThumbTouchPoint withEvent:nil]) {
+            [self makeScaleForThumb:self.rightThumbImageView withPan:nil andScaleValue:1.01f];
+        }
+    }];
 }
 
 #pragma mark - Getters
