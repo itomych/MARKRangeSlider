@@ -173,14 +173,13 @@ static NSString * const kMARKRangeSliderTrackRangeImage = @"rangeSliderTrackRang
 
 - (void)makeScaleForThumb:(UIImageView *)thumb withPan:(UIPanGestureRecognizer *)gesture andScaleValue:(CGFloat)scaleValue {
     
-    
-    if (gesture.state == UIGestureRecognizerStateBegan || gesture == nil) {
+    if (gesture.state == UIGestureRecognizerStateBegan) {
         
         thumb.transform = CGAffineTransformMakeScale(scaleValue, scaleValue);
         
         return;
     }
-    else if (gesture.state == UIGestureRecognizerStateEnded) {
+    else if (gesture.state == UIGestureRecognizerStateEnded || gesture.state == UIGestureRecognizerStateFailed || gesture.state == UIGestureRecognizerStateCancelled || gesture == nil) {
         thumb.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
     }
 }
